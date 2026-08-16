@@ -10,10 +10,11 @@ MCP server for Google Keep
 
 ```json
   "mcpServers": {
-    "keep-mcp-pipx": {
-      "command": "pipx",
+    "keep-mcp": {
+      "command": "uvx",
       "args": [
-        "run",
+        "--from",
+        "git+https://github.com/w0h1v/keep-mcp",
         "keep-mcp"
       ],
       "env": {
@@ -24,13 +25,16 @@ MCP server for Google Keep
   }
 ```
 
-Or with `uvx`:
+Or with `pipx`:
 
 ```json
   "mcpServers": {
-    "keep-mcp": {
-      "command": "uvx",
+    "keep-mcp-pipx": {
+      "command": "pipx",
       "args": [
+        "run",
+        "--spec",
+        "git+https://github.com/w0h1v/keep-mcp",
         "keep-mcp"
       ],
       "env": {
