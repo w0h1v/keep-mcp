@@ -277,6 +277,21 @@ def test_get_note(keep):
     assert data["id"] == "n1"
 
 
+def test_read_tools_pull_remote_changes(keep):
+    assert keep.sync_calls == 0
+    cli.find()
+    assert keep.sync_calls == 1
+    cli.get_note("n1")
+    assert keep.sync_calls == 2
+    cli.list_labels()
+    assert keep.sync_calls == 3
+
+
+def test_write_tools_pull_before_push(keep):
+    cli.update_note("n1", title="new")
+    assert keep.sync_calls == 2
+
+
 def test_create_note_labels_and_sync(keep):
     data = json.loads(cli.create_note("t", "body"))
     assert data["id"] == "created"

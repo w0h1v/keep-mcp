@@ -29,8 +29,19 @@ from .keep_api import (
 mcp = MCPServer("keep")
 
 
-def _get_note_or_raise(note_id: str):
+def _get_synced_client():
+    """Return the Keep client after pulling remote changes.
+
+    The client only syncs on startup and after writes, so long-lived
+    sessions would otherwise never see notes edited outside this server.
+    """
     keep = get_client()
+    keep.sync()
+    return keep
+
+
+def _get_note_or_raise(note_id: str):
+    keep = _get_synced_client()
     note = keep.get(note_id)
     if not note:
         raise ValueError(f"Note with ID {note_id} not found")
@@ -128,7 +139,7 @@ def find(
     or 2026-07-29T12:00:00Z); after-bounds are inclusive, before-bounds
     exclusive. limit caps the number of returned notes.
     """
-    keep = get_client()
+    keep = _get_synced_client()
     normalized_colors = _normalize_colors(colors)
 
     search_query: str | re.Pattern = query
@@ -349,7 +360,7 @@ def delete_note(note_id: str) -> str:
 @mcp.tool()
 def list_labels() -> str:
     """List all labels."""
-    keep = get_client()
+    keep = _get_synced_client()
     return json.dumps([serialize_label(label) for label in keep.labels()])
 
 
@@ -365,7 +376,7 @@ def create_label(name: str) -> str:
 @mcp.tool()
 def delete_label(label_id: str) -> str:
     """Delete a label by ID."""
-    keep = get_client()
+    keep = _get_synced_client()
     label = keep.getLabel(label_id)
     if not label:
         raise ValueError(f"Label with ID {label_id} not found")
